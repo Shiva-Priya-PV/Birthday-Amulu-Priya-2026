@@ -892,4 +892,4 @@ body.opened .music-btn{ opacity:1; }
 @media (prefers-reduced-motion:reduce){
   *{ animation-duration:.001s !important; animation-iteration-count:1 !important; transition-duration:.15s !important; }
   html{ scroll-behavior:auto; }
-  }
+}
