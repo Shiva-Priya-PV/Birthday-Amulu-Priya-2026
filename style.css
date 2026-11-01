@@ -543,13 +543,10 @@ body.locked .page{ opacity:0; }
   margin:calc(var(--frame-w) * -0.6667) 0 0 calc(var(--frame-w) / -2);
   transform-style:preserve-3d;
   backface-visibility:hidden;
-  transition:transform .85s var(--ease-soft), filter .5s, opacity .6s;
+  transition:filter .5s;
   filter:brightness(.55) saturate(.7);
 }
-.ring.no-anim .frame{ transition:none; }
 .frame.is-front{ filter:brightness(1.12) saturate(1.05); z-index:3; }
-.frame.is-adj{ filter:brightness(.8) saturate(.9); z-index:2; }
-.frame.is-far{ pointer-events:none; }
 
 .frame-3d{
   position:relative;
@@ -625,35 +622,9 @@ body.locked .page{ opacity:0; }
   transform:scale(1.1);
   box-shadow:0 0 30px -6px rgba(217,180,91,.8);
 }
-.ring-meta{ display:grid; gap:8px; justify-items:center; min-width:0; }
 .ring-note{
   margin:0; font-size:.7rem; letter-spacing:.22em; text-transform:uppercase;
   color:rgba(242,228,198,.4);
-}
-.ring-count{
-  margin:0;
-  font-family:var(--display);
-  font-size:.8rem; letter-spacing:.28em;
-  color:rgba(217,180,91,.8);
-}
-
-/* dots: phone navigation */
-.dots{
-  display:none;
-  align-items:center; justify-content:center; gap:10px;
-  margin:18px auto 0; flex-wrap:wrap;
-}
-.dot{
-  width:8px; height:8px; padding:0;
-  border-radius:50%;
-  border:1px solid rgba(217,180,91,.55);
-  background:transparent;
-  transition:transform .3s var(--ease-soft), background .3s, box-shadow .3s;
-}
-.dot.active{
-  background:var(--gold-lite);
-  transform:scale(1.35);
-  box-shadow:0 0 12px rgba(246,223,160,.9);
 }
 
 /* =========================================================
@@ -861,24 +832,10 @@ body.opened .music-btn{ opacity:1; }
 /* =========================================================
    RESPONSIVE
    ========================================================= */
-@media (max-width:700px){
-  /* one photo at a time, full breathing room — the rest wait off-screen */
-  .ring-wrap{ height:auto; padding:10px 0 0; cursor:default; }
-  .frame{
-    width:min(74vw, 310px);
-    margin-top:calc(min(74vw, 310px) * -0.6667);
-    margin-left:calc(min(74vw, 310px) / -2);
-  }
-  .ring{ position:relative; inset:auto; height:calc(min(74vw, 310px) * 1.3333 + 40px); }
-  .ring-controls{ margin-top:14px; }
-  .ring-note{ display:none; }
-  .dots{ display:flex; }
-  .frame:hover .frame-3d{ transform:translateZ(0); }
-}
-
 @media (max-width:760px){
   .moon{ width:86px; height:86px; right:6%; }
   .hero{ padding:96px 20px 140px; }
+  .ring-wrap{ height:clamp(300px, 92vw, 420px); }
   .music-btn .music-label{ display:none; }
   .music-btn{ padding:12px; }
   .signature{ text-align:center; }
@@ -892,4 +849,4 @@ body.opened .music-btn{ opacity:1; }
 @media (prefers-reduced-motion:reduce){
   *{ animation-duration:.001s !important; animation-iteration-count:1 !important; transition-duration:.15s !important; }
   html{ scroll-behavior:auto; }
-}
+     }
