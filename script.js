@@ -255,7 +255,7 @@
 
   function measureRadius() {
     const wrapW = ringWrap ? ringWrap.clientWidth : 900;
-    const itemW = frames[0] ? frames[0].offsetWidth : 200;
+    const itemW = frames[0] ? frames[0].getBoundingClientRect().width : 200;
     const narrow = wrapW < 700;
     // enough room that frames never overlap, tighter ring on phones so
     // the neighbouring frames stay on screen
@@ -265,86 +265,18 @@
     return clamp(ideal, min, max);
   }
 
-  // "ring"  = rotating 3D carousel (wide screens)
-  // "focus" = one large photo at a time, the rest swing in from the side (phones:
-  //           nothing ever overlaps, so the photos never look cramped)
-  let mode = 'ring';
-
-  function relOf(i) {
-    let r = (i - index) % N;
-    if (r >  N / 2) r -= N;
-    if (r < -N / 2) r += N;
-    return r;
-  }
-
-  function applyFocus() {
-    const w = frames[0] ? frames[0].offsetWidth : 240;
-    frames.forEach((f, i) => {
-      const rel = relOf(i);
-      f.classList.toggle('is-front', rel === 0);
-      f.classList.toggle('is-adj', false);
-      f.classList.toggle('is-far', rel !== 0);
-
-      if (rel === 0) {
-        // the one photo you're looking at: front and centre
-        f.style.transform = 'translate3d(0, 0, 60px) rotateY(0deg) scale(1)';
-        f.style.opacity = '1';
-      } else {
-        // everyone else waits off to the side, out of sight
-        const dir = rel > 0 ? 1 : -1;
-        f.style.transform =
-          `translate3d(${dir * (w * 1.25)}px, 0, -280px) rotateY(${dir * -34}deg) scale(.7)`;
-        f.style.opacity = '0';
-      }
-    });
-    updateDots();
-  }
-
-  /* dots + counter (shown on phones) */
-  const dotsBox = $('#dots');
-  const counter = $('#ringCount');
-  function buildDots() {
-    if (!dotsBox) return;
-    dotsBox.innerHTML = '';
-    frames.forEach((_, i) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'dot';
-      b.setAttribute('aria-label', `Photo ${i + 1}`);
-      b.addEventListener('click', () => goTo(index + shortestStep(i)));
-      dotsBox.appendChild(b);
-    });
-  }
-  function updateDots() {
-    const front = ((index % N) + N) % N;
-    if (dotsBox) $$('.dot', dotsBox).forEach((d, i) => d.classList.toggle('active', i === front));
-    if (counter) counter.textContent = `${front + 1} / ${N}`;
-  }
-
   function layoutRing() {
     if (!ring || !N) return;
-    const wrapW = ringWrap ? ringWrap.clientWidth : 900;
-    mode = wrapW < 700 ? 'focus' : 'ring';
     radius = measureRadius();
-
-    if (mode === 'ring') {
-      frames.forEach((f, i) => {
-        f.style.transform = `rotateY(${i * STEP}deg) translateZ(${radius}px)`;
-        f.style.opacity = '';
-      });
-    }
+    frames.forEach((f, i) => {
+      f.style.transform = `rotateY(${i * STEP}deg) translateZ(${radius}px)`;
+    });
     ring.style.setProperty('--radius', radius + 'px');
     applyRing();
   }
 
   function applyRing() {
     if (!ring) return;
-    if (mode === 'focus') {
-      ring.style.transform = '';
-      applyFocus();
-      return;
-    }
-    frames.forEach((f) => { f.style.opacity = ''; f.classList.remove('is-adj', 'is-far'); });
     ring.style.transform = `translateZ(${-radius * 0.28}px) rotateY(${-index * STEP}deg)`;
     const front = ((index % N) + N) % N;
     frames.forEach((f, i) => f.classList.toggle('is-front', i === front));
@@ -408,13 +340,8 @@
       if (!dragging || !ring) return;
       dragDelta = e.clientX - dragStartX;
       moved = Math.max(moved, Math.abs(dragDelta));
-      if (mode === 'focus') {
-        // drag the single card a little so the gesture feels connected
-        ring.style.transform = `translate3d(${dragDelta * 0.25}px, 0, 0)`;
-      } else {
-        const live = -index * STEP - dragDelta * 0.28;
-        ring.style.transform = `translateZ(${-radius * 0.28}px) rotateY(${live}deg)`;
-      }
+      const live = -index * STEP - dragDelta * 0.28;
+      ring.style.transform = `translateZ(${-radius * 0.28}px) rotateY(${live}deg)`;
     });
 
     const endDrag = (e) => {
@@ -643,7 +570,6 @@
      BOOT
      ======================================================= */
   if (ring) ring.classList.add('no-anim');
-  buildDots();
   layoutRing();
   restartAuto();
   window.addEventListener('load', layoutRing);
